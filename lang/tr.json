@@ -3,12 +3,5 @@
     "The :attribute must contain at least one number.": "The :attribute must contain at least one number.",
     "The :attribute must contain at least one symbol.": "The :attribute must contain at least one symbol.",
     "The :attribute must contain at least one uppercase and one lowercase letter.": "The :attribute must contain at least one uppercase and one lowercase letter.",
-    "The given :attribute has appeared in a data leak. Please choose a different :attribute.": "The given :attribute has appeared in a data leak. Please choose a different :attribute.",
-    "Login using social accounts not allowed": "Login using social accounts not allowed",
-    "Banned account": "Banned account",
-    "unauthorized provider": "unauthorized provider",
-    "Invaled credentails provided": "Invaled credentails provided",
-    "": "",
-    "": "",
-    "": ""
+    "The given :attribute has appeared in a data leak. Please choose a different :attribute.": "The given :attribute has appeared in a data leak. Please choose a different :attribute."
 }
