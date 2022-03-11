@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\PartTypeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -49,6 +50,14 @@ Route::group([
         Route::delete('collection/{id}/translation/{language}', [CollectionController::class, 'deleteTranslation'])->name('collection.translation.delete');
         Route::delete('collection/{id}', [CollectionController::class, 'destroy'])->name('collection.delete');
         
+        //part types routes
+        Route::get('part/types/all', [PartTypeController::class, 'index'])->name('part.types');
+        Route::post('part/type', [PartTypeController::class, 'store'])->name('part.type.create');
+        Route::get('part/type/{id}', [PartTypeController::class, 'show'])->name('part.type');
+        Route::put('part/type/{id}', [PartTypeController::class, 'update'])->name('part.type.update');
+        Route::delete('part/type/{id}/translation/{language}', [PartTypeController::class, 'deleteTranslation'])->name('part.type.translation.delete');
+        Route::delete('part/type/{id}', [PartTypeController::class, 'destroy'])->name('part.type.delete');
+        
     });
     
     
@@ -61,6 +70,7 @@ Route::group([
 //public routs
 Route::get('services', [ServiceController::class, 'allActive'])->name('services.active');
 Route::get('collections', [CollectionController::class, 'allActive'])->name('collections.active');
+Route::get('part/types', [PartTypeController::class, 'allActive'])->name('part.types.active');
 
 Route::post('register', [UserController::class, 'store'])->name('register');
 Route::post('login', [UserController::class, 'login'])->name('login');
