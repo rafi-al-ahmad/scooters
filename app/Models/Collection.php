@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Spatie\Translatable\HasTranslations;
 
-class Service extends Model
+class Collection extends Model
 {
     use HasFactory, HasTranslations;
 
@@ -16,13 +16,13 @@ class Service extends Model
      * The language that should translated to
      */
     public $displayLanguage;
-    
+
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'services';
+    protected $table = 'collections';
 
     /**
      * The attributes that are mass assignable.
@@ -30,8 +30,8 @@ class Service extends Model
      * @var array
      */
     protected $fillable = [
+        'parent',
         'title',
-        'description',
         'languages',
         'status',
     ];
@@ -53,7 +53,6 @@ class Service extends Model
      */
     public $translatable = [
         'title',
-        'description',
     ];
 
 
@@ -68,6 +67,12 @@ class Service extends Model
         'languages' => 'array'
     ];
 
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['children'];
 
     /**
      * Get the model's title by language.
@@ -92,32 +97,16 @@ class Service extends Model
         );
     }
 
-    /**
-     * Get the model's description by language.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
-     */
-    protected function description(): Attribute
-    {
-        return Attribute::make(
-            get: function ($value) {
-                $decodedValue = json_decode($value, true);
-                if ($this->displayLanguage) {
-                    if (isset($decodedValue[$this->displayLanguage])) {
-                        return $decodedValue[$this->displayLanguage];
-                    }
-                }
-                if (isset($decodedValue[App::currentLocale()])) {
-                    return $decodedValue[App::currentLocale()];
-                }
-                return '';
-            }
-        );
-    }
-
     public function setDisplyLanguage($local)
     {
         $this->displayLanguage = $local;
     }
-    
+
+    /**
+     * get the children of the collection
+     */
+    public function children()
+    {
+        return $this->hasMany(static::class, 'parent', 'id');
+    }
 }

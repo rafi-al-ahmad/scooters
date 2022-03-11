@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -40,6 +41,14 @@ Route::group([
         Route::delete('service/{id}/translation/{language}', [ServiceController::class, 'deleteTranslation'])->name('service.translation.delete');
         Route::delete('service/{id}', [ServiceController::class, 'destroy'])->name('service.delete');
         
+        //collections routes
+        Route::get('collections/all', [CollectionController::class, 'index'])->name('collections');
+        Route::post('collection', [CollectionController::class, 'store'])->name('collection.create');
+        Route::get('collection/{id}', [CollectionController::class, 'show'])->name('collection');
+        Route::put('collection/{id}', [CollectionController::class, 'update'])->name('collection.update');
+        Route::delete('collection/{id}/translation/{language}', [CollectionController::class, 'deleteTranslation'])->name('collection.translation.delete');
+        Route::delete('collection/{id}', [CollectionController::class, 'destroy'])->name('collection.delete');
+        
     });
     
     
@@ -49,7 +58,9 @@ Route::group([
     Route::get('logout/all', [UserController::class, 'logoutAll'])->name('logout.all');
 });
 
+//public routs
 Route::get('services', [ServiceController::class, 'allActive'])->name('services.active');
+Route::get('collections', [CollectionController::class, 'allActive'])->name('collections.active');
 
 Route::post('register', [UserController::class, 'store'])->name('register');
 Route::post('login', [UserController::class, 'login'])->name('login');
