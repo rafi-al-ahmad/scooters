@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\PartTypeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
@@ -58,6 +60,14 @@ Route::group([
         Route::delete('part/type/{id}/translation/{language}', [PartTypeController::class, 'deleteTranslation'])->name('part.type.translation.delete');
         Route::delete('part/type/{id}', [PartTypeController::class, 'destroy'])->name('part.type.delete');
         
+        
+        //brands routes
+        Route::get('brands/all', [BrandController::class, 'index'])->name('brands');
+        Route::post('brand', [BrandController::class, 'store'])->name('brand.create');
+        Route::get('brand/{id}', [BrandController::class, 'show'])->name('brand');
+        Route::put('brand/{id}', [BrandController::class, 'update'])->name('brand.update');
+        Route::delete('brand/{id}', [BrandController::class, 'destroy'])->name('brand.delete');
+        
     });
     
     
@@ -68,6 +78,7 @@ Route::group([
 });
 
 //public routs
+Route::get('brands', [BrandController::class, 'allActive'])->name('brands.active');
 Route::get('services', [ServiceController::class, 'allActive'])->name('services.active');
 Route::get('collections', [CollectionController::class, 'allActive'])->name('collections.active');
 Route::get('part/types', [PartTypeController::class, 'allActive'])->name('part.types.active');
@@ -77,3 +88,4 @@ Route::post('login', [UserController::class, 'login'])->name('login');
 Route::get('social/{provider}', [UserController::class, 'socialAuth'])->name('social.auth');
 Route::get('login/{provider}', [UserController::class, 'redirectToProvider'])->name('login.provider.redirect');
 Route::get('login/{provider}/callback', [UserController::class, 'handleProviderCallback'])->name('login.provider.callback');
+
