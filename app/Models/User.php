@@ -51,6 +51,14 @@ class User extends Authenticatable
         'created_at' => 'datetime:Y-m-d H:i',
         'updated_at' => 'datetime:Y-m-d H:i'
     ];
+    
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['address'];
+
 
     public function isAdmin()
     {
@@ -61,6 +69,11 @@ class User extends Authenticatable
     public function providers()
     {
         return $this->hasMany(Provider::class, 'user_id', 'id');
+    }
+    
+    public function address()
+    {
+        return $this->hasOne(Address::class, 'user_id', 'id');
     }
 
 }

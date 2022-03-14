@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Models\Address;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,12 +18,20 @@ use Laravel\Socialite\Facades\Socialite;
 class UserController extends Controller
 {
 
-    protected $validationRules = [
+    protected $userValidationRules = [
         'name' => ['required', 'max:60'],
         'surname' => ['required', 'max:60'],
         'username' => ['required', 'unique:users', 'max:30'],
         'email' => ['required', 'email:rfc,dns', 'unique:users', 'max:60',],
         'phone' => ['required', 'unique:users', 'max:18'],
+    ];
+
+    protected $addressValidationRules = [
+        'state' => ['required', 'string', 'max:60'],
+        'city' => ['required', 'string', 'max:60'],
+        'street_1' => ['required', 'string', 'max:190'],
+        'street_2' => ['nullable', 'string', 'max:190'],
+        'postal_code' => ['required', 'string', 'max:60'],
     ];
 
     protected $providers = [
@@ -58,7 +67,7 @@ class UserController extends Controller
             ]
         );
 
-        
+
         if ($user->deleted_at) {
             return response()->json(['message' => __('Banned account')], 403);
         }
@@ -121,7 +130,7 @@ class UserController extends Controller
             $data['isAdmin'] = true;
         }
 
-        Validator::make($data, array_merge($this->validationRules, [
+        Validator::make($data, array_merge($this->userValidationRules, [
             'password' => ['required', 'min:6']
         ]))->validate();
 
@@ -163,7 +172,7 @@ class UserController extends Controller
             $user = $request->user();
         }
 
-        Validator::make($data, array_merge($this->validationRules, [
+        Validator::make($data, array_merge($this->userValidationRules, [
             'username' => ['required', Rule::unique('users', 'username')->ignore($user->id), 'max:30'],
             'phone' => ['required', Rule::unique('users', 'phone')->ignore($user->id), 'max:18'],
             'email' => ['required', 'email:rfc,dns', Rule::unique('users', 'email')->ignore($user->id), 'max:60',],
@@ -176,6 +185,30 @@ class UserController extends Controller
         $user->email = $data['email'];
         $user->phone = $data['phone'];
 
+        $user->save();
+
+        return response()->json([
+            'user' => $user,
+        ]);
+    }
+
+    public function updatePassword(Request $request, $user_id = null)
+    {
+        $this->wantJson();
+
+        $data = $request->all();
+        if ($user_id) {
+            $user = User::findOrFail($user_id);
+        } else {
+            $user = $request->user();
+        }
+
+        Validator::make($data, [
+            'password' => ['required', 'min:6', 'max:120', 'confirmed'],
+        ])->validate();
+
+
+        $user->password = Hash::make($data['password']);
         $user->save();
 
         return response()->json([
@@ -247,5 +280,28 @@ class UserController extends Controller
     public function invalidateCurrentAccessToken()
     {
         return request()->user()?->currentAccessToken()->delete();
+    }
+
+
+    public function setAddress(Request $request)
+    {
+        $user = Auth::guard()->user();
+        $data = $request->all();
+
+        Validator::make($data, array_merge($this->addressValidationRules, []))->validate();
+
+        $address = Address::updateOrCreate([
+            "user_id" => $user->id,
+        ], [
+            "state" => $request->state,
+            "city" => $request->city,
+            "street_1" => $request->street_1,
+            "street_2" => $request->street_2,
+            "postal_code" => $request->postal_code,
+        ]);
+
+        return  response()->json([
+            'address' => $address
+        ]);
     }
 }
