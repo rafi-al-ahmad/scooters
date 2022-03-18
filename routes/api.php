@@ -4,6 +4,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\PartTypeController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -68,6 +69,8 @@ Route::group([
         Route::put('brand/{id}', [BrandController::class, 'update'])->name('brand.update');
         Route::delete('brand/{id}', [BrandController::class, 'destroy'])->name('brand.delete');
         
+        //product
+        Route::post('product', [ProductController::class, 'store'])->name('product.create');
     });
     
     
@@ -85,9 +88,15 @@ Route::get('services', [ServiceController::class, 'allActive'])->name('services.
 Route::get('collections', [CollectionController::class, 'allActive'])->name('collections.active');
 Route::get('part/types', [PartTypeController::class, 'allActive'])->name('part.types.active');
 
+Route::get('product/{id}', [ProductController::class, 'show'])->name('product');
+Route::get('products', [ProductController::class, 'index'])->name('products');
+
 Route::post('register', [UserController::class, 'store'])->name('register');
 Route::post('login', [UserController::class, 'login'])->name('login');
 Route::get('social/{provider}', [UserController::class, 'socialAuth'])->name('social.auth');
 Route::get('login/{provider}', [UserController::class, 'redirectToProvider'])->name('login.provider.redirect');
 Route::get('login/{provider}/callback', [UserController::class, 'handleProviderCallback'])->name('login.provider.callback');
 
+Route::post('test', function (){
+    dd(request()->all());
+});
