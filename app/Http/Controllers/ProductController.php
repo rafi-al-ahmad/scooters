@@ -75,7 +75,7 @@ class ProductController extends Controller
 
             'features' => ['array', 'nullable'],
             'features.*' => ['array'],
-            'features.*.title' => ['required', 'string', 'mak:80'],
+            'features.*.title' => ['required', 'string', 'max:80'],
             'features.*.image' => ['required', 'imageable'],
             'features.*.description' => ['nullable', 'string'],
             // 'combinations' => ['exclude_if:variants,null', 'nullable', 'array'],
@@ -98,10 +98,37 @@ class ProductController extends Controller
      *
      * @return App\Http\Resources\CollectionResource
      */
-    public function allActive(Request $request)
+    public function activeWithFilters(Request $request)
     {
-        $products = Product::where('status', 1)->paginate($request->limit);
-        return ProductResource::collection($products);
+        $query = Product::where('status', 1); 
+        if ($request->brand) {
+            $query->where('brand_id', $request->brand);
+        }
+        
+        if ($request->collection) {
+            $query->where('collection_id', $request->collection);
+        }
+        
+        if ($request->type) {
+            $query->where('product_type', $request->type);
+            
+            if ($request->type == "part" && $request->part_type) {
+                $query->where('options->part_type', $request->part_type);
+            }
+        }
+        
+        
+        if ($request->key) {
+            $key = $request->key;
+            $query->where(function($query) use ($key) {
+                $query->orWhere('title', 'like', '%'.$key.'%')
+                ->orWhere('description', 'like', '%'.$key.'%')
+                ->orWhere('meta_desc', 'like', '%'.$key.'%');
+            });
+        }
+
+
+        return ProductResource::collection($query->paginate($request->limit));
     }
 
     /**
@@ -399,7 +426,8 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($product_id);
 
-        return [
+        
+        $productData = [
             'id' => $product->id,
             'title' => $product->title,
             'description' => $product->description,
@@ -413,32 +441,19 @@ class ProductController extends Controller
             'videos' => $product->videos,
             'status' => $product->status,
             'technical_specifications' => $product->technical_specifications,
-            'main_image' => $product->getMainImage(),
-            'media' => $product->getPreparedMedia(),
+            'options' => $product->variant_options,
             'variants' => $product->variants,
+            'features' => $product->features,
+            'media' => $product->getPreparedMedia(),
+            'main_image' => $product->getMainImage(),
         ];
+        
+        if ($product->product_type == "part" && isset($product->options['part_type'])) {
+            $productData['part_type'] = $product->options['part_type'];
+        }
+
+        return $productData;
     }
-
-    public function deleteImagesFromProduct(Request $request)
-    {
-        $this->wantJson();
-
-        $data = $request->all();
-        Validator::make($data, [
-            'product_id' => ['required', 'max:20', 'exists:products,id'],
-            'images' => ['array'],
-            'images.*' => ['numeric', 'exists:media,id'],
-        ])->validate();
-
-        Media::whereIn('id', $data['images'])->get()->each->delete();
-
-
-        return response()->json([
-            'success' => true
-        ]);
-    }
-
-
 
 
     /**
@@ -456,4 +471,6 @@ class ProductController extends Controller
             'success' => true
         ]);
     }
+
+
 }

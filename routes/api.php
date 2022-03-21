@@ -73,6 +73,7 @@ Route::group([
         Route::post('product', [ProductController::class, 'store'])->name('product.create');
         Route::put('product', [ProductController::class, 'update'])->name('product.create');
         Route::delete('product/{id}', [ProductController::class, 'destroy'])->name('product.create');
+        Route::get('products/all', [ProductController::class, 'index'])->name('products.all');
     });
     
     
@@ -91,7 +92,7 @@ Route::get('collections', [CollectionController::class, 'allActive'])->name('col
 Route::get('part/types', [PartTypeController::class, 'allActive'])->name('part.types.active');
 
 Route::get('product/{id}', [ProductController::class, 'show'])->name('product');
-Route::get('products', [ProductController::class, 'index'])->name('products');
+Route::get('products', [ProductController::class, 'activeWithFilters'])->name('products.active');
 
 Route::post('register', [UserController::class, 'store'])->name('register');
 Route::post('login', [UserController::class, 'login'])->name('login');

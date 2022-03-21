@@ -8,12 +8,12 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class MediaController extends Controller
 {
     //
-    
+
     public function deleteMedia($media_id)
     {
         $media = Media::findOrFail($media_id);
         $media->delete();
-        
+
         return response()->json([
             'success' => true
         ]);
@@ -52,5 +52,24 @@ class MediaController extends Controller
         $mime_type = finfo_buffer($f, $imgdata, FILEINFO_MIME_TYPE);
 
         return str_replace("image/", "", $mime_type);
+    }
+
+
+    public function deleteImages(Request $request)
+    {
+        $this->wantJson();
+
+        $data = $request->all();
+        Validator::make($data, [
+            'images' => ['array'],
+            'images.*' => ['numeric', 'exists:media,id'],
+        ])->validate();
+
+        Media::whereIn('id', $data['images'])->get()->each->delete();
+
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 }

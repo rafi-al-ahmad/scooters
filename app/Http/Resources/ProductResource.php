@@ -14,7 +14,8 @@ class ProductResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        
+        $productData = [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
@@ -28,8 +29,18 @@ class ProductResource extends JsonResource
             'videos' => $this->videos,
             'status' => $this->status,
             'technical_specifications' => $this->technical_specifications,
-            'main_image' => $this->getMainImage(),
+            'options' => $this->variant_options,
+            'variants' => $this->variants,
+            'features' => $this->features,
             'media' => $this->getPreparedMedia(),
+            'main_image' => $this->getMainImage(),
         ];
+        
+        if ($this->product_type == "part" && isset($this->options['part_type'])) {
+            $productData['part_type'] = $this->options['part_type'];
+        }
+
+        return $productData;
+
     }
 }

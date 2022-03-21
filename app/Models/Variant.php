@@ -51,7 +51,8 @@ class Variant extends Model implements HasMedia
      * @var array
      */
     protected $hidden = [
-        'deleted_at'
+        'deleted_at',
+        'media',
     ];
         
     /**
@@ -71,6 +72,11 @@ class Variant extends Model implements HasMedia
         'created_at' => 'datetime:Y-m-d H:i',
         'updated_at' => 'datetime:Y-m-d H:i',
         'languages' => 'array',
+    ];
+
+    
+    protected $appends = [
+        'image',
     ];
 
     /**
@@ -97,6 +103,24 @@ class Variant extends Model implements HasMedia
                 return null;
             }
         );
+    }
+
+    
+    public function getImageAttribute()
+    {
+
+        $image = [];
+
+        if ($this->media->first()) {
+            $media = $this->media->first();
+            $image['id'] = $media->id;
+            $image['file_name'] = $media->file_name;
+            $image['mime_type'] = $media->mime_type;
+            $image['size'] = $media->size;
+            $image['url'] = $media->getUrl();
+            $image['srcset'] = $media->getSrcset();
+        }
+        return $image;
     }
     
 }

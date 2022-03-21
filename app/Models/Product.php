@@ -96,9 +96,19 @@ class Product extends Model implements HasMedia
     protected $with = [
         'media',
         'variants',
+        'features',
         'mainImage'
     ];
 
+    // declare event handlers
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($model) {
+             $model->variants()->delete();
+             $model->features()->delete();
+        });
+    }
 
     /**
      * Get the model's title by language.
@@ -221,7 +231,6 @@ class Product extends Model implements HasMedia
      */
     public function getMainImage()
     {
-
         $main_image = [];
         if ($this->mainImage) {
             $main_image['id'] = $this->mainImage->id;
@@ -238,6 +247,11 @@ class Product extends Model implements HasMedia
     public function variants()
     {
         return $this->hasMany(Variant::class, 'product_id', 'id');
+    }
+
+    public function features()
+    {
+        return $this->hasMany(Feature::class, 'product_id', 'id');
     }
 
     public function mainImage()
