@@ -51,7 +51,7 @@ class User extends Authenticatable
         'created_at' => 'datetime:Y-m-d H:i',
         'updated_at' => 'datetime:Y-m-d H:i'
     ];
-    
+
     /**
      * The relationships that should always be loaded.
      *
@@ -60,20 +60,38 @@ class User extends Authenticatable
     protected $with = ['address'];
 
 
+
+    protected $appends = [
+        'image',
+    ];
+
+
     public function isAdmin()
     {
         return $this->is_admin == 1;
     }
 
-    
+
     public function providers()
     {
         return $this->hasMany(Provider::class, 'user_id', 'id');
     }
-    
+
     public function address()
     {
         return $this->hasOne(Address::class, 'user_id', 'id');
     }
 
+
+    public function getStatusAttribute()
+    {
+        if (
+            isset($this->phone)
+            && isset($this->surname)
+            && isset($this->username)
+        ) {
+            return 1;
+        }
+        return 0;
+    }
 }
