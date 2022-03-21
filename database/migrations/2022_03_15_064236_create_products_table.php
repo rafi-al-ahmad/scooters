@@ -29,6 +29,7 @@ return new class extends Migration
             $table->json('variant_options');
             $table->json('languages');
             $table->boolean('status')->default(1);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
