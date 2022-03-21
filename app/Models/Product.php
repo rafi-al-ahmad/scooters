@@ -46,6 +46,7 @@ class Product extends Model implements HasMedia
         'technical_specifications',
         'product_type',
         'options',
+        'variant_options',
         'languages',
     ];
 
@@ -70,6 +71,7 @@ class Product extends Model implements HasMedia
         'languages' => 'array',
         'videos' => 'array',
         'options' => 'array',
+        'variant_options' => 'array',
         'technical_specifications' => 'array'
     ];
 
@@ -82,6 +84,8 @@ class Product extends Model implements HasMedia
         'title',
         'description',
         'meta_desc',
+        'technical_specifications',
+        'variant_options',
     ];
 
     /**
@@ -92,26 +96,9 @@ class Product extends Model implements HasMedia
     protected $with = [
         'media',
         'variants',
-        'combinations',
         'mainImage'
     ];
 
-
-    /**
-     * Get the model's title by language.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
-     */
-    protected function vidseos(): Attribute
-    {
-        return Attribute::make(
-            get: function ($value) {
-                $decodedValue = json_decode($value, true);
-                dd($decodedValue);
-                return $decodedValue;
-            }
-        );
-    }
 
     /**
      * Get the model's title by language.
@@ -209,31 +196,22 @@ class Product extends Model implements HasMedia
             $modelMedia[$key]['srcset'] = $mediaItem->getSrcset();
         }
 
-        return $modelMedia;
-    }
-
-    /**
-     * prepare the media strcture for this model
-     * 
-     * @return array
-     */
-    public function prepareMedia()
-    {
-        $modelMedia = [];
-
-        foreach ($this->media as $key => $mediaItem) {
-            $modelMedia[$key]['id'] = $mediaItem->id;
-            $modelMedia[$key]['file_name'] = $mediaItem->file_name;
-            $modelMedia[$key]['mime_type'] = $mediaItem->mime_type;
-            $modelMedia[$key]['size'] = $mediaItem->size;
-            $modelMedia[$key]['url'] = $mediaItem->getUrl();
-            $modelMedia[$key]['srcset'] = $mediaItem->getSrcset();
+        foreach ($this->variants as $variant) {
+            if (isset($variant->media)) {
+                foreach ($variant->media as $variantMedia) {
+                    $modelMedia[] = [
+                        "id" => $variantMedia->id,
+                        "file_name" => $variantMedia->file_name,
+                        "mime_type" => $variantMedia->mime_type,
+                        "size" => $variantMedia->size,
+                        "url" => $variantMedia->getUrl(),
+                        "srcset" => $variantMedia->getSrcset(),
+                    ];
+                }
+            }
         }
 
-        $this->attributes['media'] = $modelMedia;
-        // $this->media = $modelMedia;
-
-        // return $modelMedia;
+        return $modelMedia;
     }
 
     /**
@@ -269,8 +247,4 @@ class Product extends Model implements HasMedia
             ->where('model_type', static::class);
     }
 
-    public function combinations()
-    {
-        return $this->hasMany(ProductCombination::class, 'product_id', 'id');
-    }
 }

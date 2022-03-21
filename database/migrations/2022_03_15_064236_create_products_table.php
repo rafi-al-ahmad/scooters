@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('product_type');
             $table->json('options')->default('[]');
             $table->json('videos');
+            $table->json('variant_options');
             $table->json('languages');
             $table->boolean('status')->default(1);
             $table->timestamps();

@@ -71,6 +71,8 @@ Route::group([
         
         //product
         Route::post('product', [ProductController::class, 'store'])->name('product.create');
+        Route::put('product', [ProductController::class, 'update'])->name('product.create');
+        Route::delete('product/{id}', [ProductController::class, 'destroy'])->name('product.create');
     });
     
     

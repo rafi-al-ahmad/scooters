@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\App;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Translatable\HasTranslations;
 
-class Variant extends Model
+class Variant extends Model implements HasMedia
 {
-    use HasFactory, HasTranslations;
+    use HasFactory, HasTranslations, InteractsWithMedia;
     
     /**
      * The attributes that are mass assignable.
@@ -19,9 +21,12 @@ class Variant extends Model
      * @var array
      */
     protected $fillable = [
-        'title',
-        'type',
+        'sku',
         'product_id',
+        'options',
+        'price',
+        'compareAtPrice',
+        'quantity',
     ];
 
     
@@ -36,7 +41,17 @@ class Variant extends Model
      * @var array
      */
     public $translatable = [
-        'title',
+        'options',
+    ];
+    
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'deleted_at'
     ];
         
     /**
@@ -44,7 +59,7 @@ class Variant extends Model
      *
      * @var array
      */
-    protected $with = ['values'];
+    protected $with = ['media'];
 
     
     /**
@@ -58,18 +73,12 @@ class Variant extends Model
         'languages' => 'array',
     ];
 
-
-    public function values()
-    {
-        return $this->hasMany(VariantValue::class, 'variant_id', 'id');
-    }
-
     /**
-     * Get the model's title by language.
+     * Get the model's options by language.
      *
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
-    protected function title(): Attribute
+    protected function options(): Attribute
     {
         return Attribute::make(
             get: function ($value) {
@@ -82,7 +91,10 @@ class Variant extends Model
                 if (isset($decodedValue[App::currentLocale()])) {
                     return $decodedValue[App::currentLocale()];
                 }
-                return '';
+                if (isset($decodedValue[config('app.fallback_locale')])) {
+                    return $decodedValue[config('app.fallback_locale')];
+                }
+                return null;
             }
         );
     }

@@ -13,13 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('variants', function (Blueprint $table) {
-            $table->id();
-            $table->string('sku');
-            $table->json('options')->nullable();
-            $table->double('compareAtPrice')->nullable();
-            $table->double('price');
-            $table->integer('quantity');
+        Schema::create('features', function (Blueprint $table) {
+            $table->id();            
+            $table->json('title');
+            $table->json('description');
             $table->unsignedBigInteger('product_id');
             $table->softDeletes();
             $table->timestamps();
@@ -33,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('variants');
+        Schema::dropIfExists('features');
     }
 };
