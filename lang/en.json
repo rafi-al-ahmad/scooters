@@ -8,7 +8,10 @@
     "Banned account": "Banned account",
     "unauthorized provider": "unauthorized provider",
     "Invaled credentails provided": "Invaled credentails provided",
-    "": "",
-    "": "",
-    "": ""
+    "created-appointment-mail-title": "New Appointment",
+    "Dear :name, your appointment for the service (:service) for the product (:product) has been approved, we're waiting for you on :date": "Dear :name, your appointment for the service (:service) for the product (:product) has been approved, we're waiting for you on :date",
+    "Approve An Appointment": "Approve An Appointment",
+    "product:": "Product:",
+    "details:": "Details:",
+    "no details:": "No details:"
 }

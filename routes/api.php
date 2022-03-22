@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\FeatureController;
@@ -74,15 +75,24 @@ Route::group([
         Route::put('product', [ProductController::class, 'update'])->name('product.create');
         Route::delete('product/{id}', [ProductController::class, 'destroy'])->name('product.create');
         Route::get('products/all', [ProductController::class, 'index'])->name('products.all');
+    
+    
+        Route::put('appointment', [AppointmentController::class, 'update'])->name('appointment.update');
+        Route::get('appointment/{id}', [AppointmentController::class, 'show'])->name('appointment.show');
+        Route::delete('appointment/{id}', [AppointmentController::class, 'destroy'])->name('appointment.delete');
+        Route::get('appointments', [AppointmentController::class, 'index'])->name('appointment.all');
     });
-    
-    
+
     Route::post('user/address', [UserController::class, 'setAddress'])->name('user.address.set');
     Route::put('user', [UserController::class, 'update'])->name('user.profile.update');
     Route::put('user/password', [UserController::class, 'updatePassword'])->name('user.password.update');
     Route::get('user/{id}', [UserController::class, 'show'])->name('user.show');
     Route::get('logout', [UserController::class, 'logout'])->name('logout');
     Route::get('logout/all', [UserController::class, 'logoutAll'])->name('logout.all');
+
+
+    Route::post('appointment', [AppointmentController::class, 'store'])->name('appointment.create');
+    Route::get('appointments/user', [AppointmentController::class, 'userAppointments'])->name('appointment.user');
 });
 
 //public routs
@@ -93,6 +103,7 @@ Route::get('part/types', [PartTypeController::class, 'allActive'])->name('part.t
 
 Route::get('product/{id}', [ProductController::class, 'show'])->name('product');
 Route::get('products', [ProductController::class, 'activeWithFilters'])->name('products.active');
+
 
 Route::post('register', [UserController::class, 'store'])->name('register');
 Route::post('login', [UserController::class, 'login'])->name('login');
