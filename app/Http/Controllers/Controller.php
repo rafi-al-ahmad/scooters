@@ -22,6 +22,6 @@ class Controller extends BaseController
 
     public function currentUserId()
     {
-        return Auth::guard()->user()?->id;
+        return Auth::guard()->user()?->id ?? auth('sanctum')->user()->id;
     }
 }

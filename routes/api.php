@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\PartTypeController;
@@ -110,6 +111,12 @@ Route::post('login', [UserController::class, 'login'])->name('login');
 Route::get('social/{provider}', [UserController::class, 'socialAuth'])->name('social.auth');
 Route::get('login/{provider}', [UserController::class, 'redirectToProvider'])->name('login.provider.redirect');
 Route::get('login/{provider}/callback', [UserController::class, 'handleProviderCallback'])->name('login.provider.callback');
+
+
+Route::get('cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+Route::get('cart/show', [CartController::class, 'show'])->name('cart.show');
+Route::delete('cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+
 
 Route::post('test', function (){
     dd(request()->all());

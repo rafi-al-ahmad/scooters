@@ -162,6 +162,29 @@ class Product extends Model implements HasMedia
      *
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
+    protected function variantOptions(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                $decodedValue = json_decode($value, true);
+                if ($this->displayLanguage) {
+                    if (isset($decodedValue[$this->displayLanguage])) {
+                        return $decodedValue[$this->displayLanguage];
+                    }
+                }
+                if (isset($decodedValue[App::currentLocale()])) {
+                    return $decodedValue[App::currentLocale()];
+                }
+                return '';
+            }
+        );
+    }
+
+    /**
+     * Get the model's meta description by language.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
     protected function metaDesc(): Attribute
     {
         return Attribute::make(
@@ -247,7 +270,7 @@ class Product extends Model implements HasMedia
 
     public function variants()
     {
-        return $this->hasMany(Variant::class, 'product_id', 'id');
+        return $this->hasMany(Variant::class, 'product_id', 'id')->withOut('product');
     }
 
     public function features()

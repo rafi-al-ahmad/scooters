@@ -62,7 +62,10 @@ class Variant extends Model implements HasMedia
      *
      * @var array
      */
-    protected $with = ['media'];
+    protected $with = [
+        'media',
+        'product',
+    ];
 
     
     /**
@@ -123,6 +126,11 @@ class Variant extends Model implements HasMedia
             $image['srcset'] = $media->getSrcset();
         }
         return $image;
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'id')->without(['variants', 'media', 'features']);
     }
     
 }

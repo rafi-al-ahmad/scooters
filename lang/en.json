@@ -12,6 +12,7 @@
     "Dear :name, your appointment for the service (:service) for the product (:product) has been approved, we're waiting for you on :date": "Dear :name, your appointment for the service (:service) for the product (:product) has been approved, we're waiting for you on :date",
     "Approve An Appointment": "Approve An Appointment",
     "product:": "Product:",
+    "selected quantity must be less than or equal to available quantity of product": "selected quantity must be less than or equal to available quantity of product",
     "details:": "Details:",
-    "no details:": "No details:"
+    "no details": "No details"
 }
