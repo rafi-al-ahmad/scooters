@@ -22,9 +22,9 @@ return new class extends Migration
             $table->string('warranty')->default(0);
             $table->unsignedBigInteger('brand_id');
             $table->unsignedBigInteger('collection_id');
-            $table->json('technical_specifications')->default('[]');
+            $table->json('technical_specifications');
             $table->string('product_type');
-            $table->json('options')->default('[]');
+            $table->json('options');
             $table->json('videos');
             $table->json('variant_options');
             $table->json('languages');
