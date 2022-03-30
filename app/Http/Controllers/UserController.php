@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use App\Models\Address;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -144,6 +148,8 @@ class UserController extends Controller
             'is_admin' => isset($data['isAdmin']) ? 1 : 0,
         ]);
 
+        event(new Registered($user));
+
         $token = $this->createUserAccessTooken($user);
 
         return response()->json([
@@ -167,6 +173,7 @@ class UserController extends Controller
 
         $data = $request->all();
         if ($user_id) {
+            Gate::authorize('admin');
             $user = User::findOrFail($user_id);
         } else {
             $user = $request->user();
@@ -304,5 +311,62 @@ class UserController extends Controller
         return  response()->json([
             'address' => $address
         ]);
+    }
+
+
+    // Email verification 
+    /**
+     * Mark the authenticated user's email address as verified.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function verify(Request $request)
+    {
+        $user = User::find($request->id);
+        if (!hash_equals((string) $request->hash, sha1($user->getEmailForVerification()))) {
+            throw new AuthorizationException;
+        }
+        
+        if ($user->hasVerifiedEmail()) {
+            return $request->wantsJson()
+            ? new JsonResponse([], 204)
+            : redirect($this->verifiedRedirectPath());
+        }
+
+        if ($user->markEmailAsVerified()) {
+            event(new Verified($user));
+        }
+
+        return $request->wantsJson()
+            ? new JsonResponse([], 204)
+            : redirect($this->verifiedRedirectPath())->with('verified', true);
+    }
+    
+    /**
+     * Resend the email verification notification.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function resendVerification(Request $request)
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return $request->wantsJson()
+                        ? new JsonResponse([], 204)
+                        : redirect($this->verifiedRedirectPath());
+        }
+        $request->user()->sendEmailVerificationNotification();
+
+        return $request->wantsJson()
+                    ? new JsonResponse([], 202)
+                    : back()->with('resent', true);
+    }
+
+    public function verifiedRedirectPath()
+    {
+        return env('FRONT_URL') . '/email/verify/success';
     }
 }

@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::group([
-    'middleware' => ['auth:sanctum']
+    'middleware' => ['auth:sanctum', 'verified']
 ], function () {
 
     Route::group([
@@ -91,7 +91,7 @@ Route::group([
     Route::get('logout', [UserController::class, 'logout'])->name('logout');
     Route::get('logout/all', [UserController::class, 'logoutAll'])->name('logout.all');
 
-
+    
     Route::post('appointment', [AppointmentController::class, 'store'])->name('appointment.create');
     Route::get('appointments/user', [AppointmentController::class, 'userAppointments'])->name('appointment.user');
 });
@@ -111,13 +111,10 @@ Route::post('login', [UserController::class, 'login'])->name('login');
 Route::get('social/{provider}', [UserController::class, 'socialAuth'])->name('social.auth');
 Route::get('login/{provider}', [UserController::class, 'redirectToProvider'])->name('login.provider.redirect');
 Route::get('login/{provider}/callback', [UserController::class, 'handleProviderCallback'])->name('login.provider.callback');
+Route::get('verify', [UserController::class, 'verify'])->middleware(['throttle:6,1', 'signed'])->name('verification.verify');
+Route::get('verify/resend', [UserController::class, 'resendVerification'])->middleware('auth:sanctum', 'throttle:6,1')->name('verification.resend');
 
 
 Route::get('cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 Route::get('cart/show', [CartController::class, 'show'])->name('cart.show');
 Route::delete('cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
-
-
-Route::post('test', function (){
-    dd(request()->all());
-});
