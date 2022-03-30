@@ -198,13 +198,14 @@ class UserController extends Controller
 
         $data = $request->all();
         if ($user_id) {
+            Gate::authorize('admin');
             $user = User::findOrFail($user_id);
         } else {
             $user = $request->user();
         }
 
         Validator::make($data, [
-            'password' => ['required', 'min:6', 'max:120', 'confirmed'],
+            'password' => ['required', 'min:6', 'max:120'],
         ])->validate();
 
 

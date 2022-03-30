@@ -86,7 +86,7 @@ Route::group([
 
     Route::post('user/address', [UserController::class, 'setAddress'])->name('user.address.set');
     Route::put('user', [UserController::class, 'update'])->name('user.profile.update');
-    Route::put('user/password', [UserController::class, 'updatePassword'])->name('user.password.update');
+    Route::put('update/user/password/{id?}', [UserController::class, 'updatePassword'])->name('user.password.update');
     Route::get('user/{id}', [UserController::class, 'show'])->name('user.show');
     Route::get('logout', [UserController::class, 'logout'])->name('logout');
     Route::get('logout/all', [UserController::class, 'logoutAll'])->name('logout.all');
