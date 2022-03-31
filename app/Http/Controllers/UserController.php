@@ -43,23 +43,34 @@ class UserController extends Controller
         'facebook',
     ];
 
-    public function socialAuth(Request $request, $provider)
+    public function redirect($provider)
     {
         $validated = $this->validateProvider($provider);
         if (!is_null($validated)) {
             return $validated;
         }
 
-        $request->validate([
-            'social_token' => 'required|string',
-        ]);
+        return Socialite::driver($provider)->stateless()->redirect();
+    }
 
+    public function socialAuth(Request $request, $provider)
+    {
+        $validated = $this->validateProvider($provider);
+        if (!is_null($validated)) {
+            return $validated;
+        }
+        
+        // $request->validate([
+        //     'social_token' => 'required|string',
+        // ]);
+        
         try {
-            $providerUser = Socialite::driver($provider)->stateless()->userFromToken($request->social_token);
+            $providerUser = Socialite::driver($provider)->stateless()->user();//userFromToken("AQDhsxdXwpQZH5ac4J7LeHVtulwp-QiOkKVwefArMbK-D36bv0-T4ixsKGUjhVBe2bxcVc7dgsRbygRuJrjsSa250_MhLeF01GnSCh09-M6jW0bpsVrFXavi-NMdh5JqZK89U-R_c2v486fNhq-31ZA1m0QA1PzgvRgTenplRuAHaeCn98mM-lZYQGXAX9qDbDvfpIsig4_vfYcBtipYkSwQUX3AmdKbF872-4Q5PoxgclIU7zTeBj9eM93uzO8LAUnLwGSGOGSPDKcQLoVaH3Vm338VZdO-oyn1KnwxOeAr-6pPEFNysu42UHHrYO76Zn3XAXciDLCyC2-YVFlBMAzKu18C3BBwHAO3xHbE7LsbpIXTtUofc5uDC0iXRFCmWGNiqsWjQZZAxZx3nSrxQksz");
         } catch (\Throwable $th) {
             return response()->json(['error' => __('Invaled credentails provided')], 422);
         }
-
+        dd($providerUser);
+        
 
         $user = User::withTrashed()->firstOrCreate(
             [
@@ -158,9 +169,14 @@ class UserController extends Controller
         ]);
     }
 
-    public function show($user_id)
+    public function show(Request $request, $user_id = null)
     {
-        $user = User::findOrFail($user_id);
+        if ($user_id) {
+            Gate::authorize('admin');
+            $user = User::findOrFail($user_id);
+        } else {
+            $user = $request->user();
+        }
 
         return  response()->json([
             'user' => $user
@@ -282,7 +298,7 @@ class UserController extends Controller
 
     public function invalidateAllUserAccessTokens(User $user)
     {
-        return $user->tokens()->delete();
+        return $user?->tokens()->delete();
     }
 
     public function invalidateCurrentAccessToken()
@@ -329,11 +345,11 @@ class UserController extends Controller
         if (!hash_equals((string) $request->hash, sha1($user->getEmailForVerification()))) {
             throw new AuthorizationException;
         }
-        
+
         if ($user->hasVerifiedEmail()) {
             return $request->wantsJson()
-            ? new JsonResponse([], 204)
-            : redirect($this->verifiedRedirectPath());
+                ? new JsonResponse([], 204)
+                : redirect($this->verifiedRedirectPath());
         }
 
         if ($user->markEmailAsVerified()) {
@@ -344,7 +360,7 @@ class UserController extends Controller
             ? new JsonResponse([], 204)
             : redirect($this->verifiedRedirectPath())->with('verified', true);
     }
-    
+
     /**
      * Resend the email verification notification.
      *
@@ -355,14 +371,14 @@ class UserController extends Controller
     {
         if ($request->user()->hasVerifiedEmail()) {
             return $request->wantsJson()
-                        ? new JsonResponse([], 204)
-                        : redirect($this->verifiedRedirectPath());
+                ? new JsonResponse([], 204)
+                : redirect($this->verifiedRedirectPath());
         }
         $request->user()->sendEmailVerificationNotification();
 
         return $request->wantsJson()
-                    ? new JsonResponse([], 202)
-                    : back()->with('resent', true);
+            ? new JsonResponse([], 202)
+            : back()->with('resent', true);
     }
 
     public function verifiedRedirectPath()

@@ -23,9 +23,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 Route::group([
     'middleware' => ['auth:sanctum', 'verified']
 ], function () {
@@ -87,14 +84,18 @@ Route::group([
     Route::post('user/address', [UserController::class, 'setAddress'])->name('user.address.set');
     Route::put('user', [UserController::class, 'update'])->name('user.profile.update');
     Route::put('update/user/password/{id?}', [UserController::class, 'updatePassword'])->name('user.password.update');
-    Route::get('user/{id}', [UserController::class, 'show'])->name('user.show');
-    Route::get('logout', [UserController::class, 'logout'])->name('logout');
-    Route::get('logout/all', [UserController::class, 'logoutAll'])->name('logout.all');
-
+    Route::get('user/{id?}', [UserController::class, 'show'])->name('user.show');
     
-    Route::post('appointment', [AppointmentController::class, 'store'])->name('appointment.create');
+    Route::post('appointment', [AppointmentController::class, 'store'])->middleware('account.completed')->name('appointment.create');
     Route::get('appointments/user', [AppointmentController::class, 'userAppointments'])->name('appointment.user');
+    
+    Route::get('account/check', function() {
+        return response(["status" => "completed"]);
+    })->middleware('account.completed');
+    
 });
+Route::get('logout', [UserController::class, 'logout'])->name('logout');
+Route::get('logout/all', [UserController::class, 'logoutAll'])->name('logout.all');
 
 //public routs
 Route::get('brands', [BrandController::class, 'allActive'])->name('brands.active');
@@ -109,8 +110,10 @@ Route::get('products', [ProductController::class, 'activeWithFilters'])->name('p
 Route::post('register', [UserController::class, 'store'])->name('register');
 Route::post('login', [UserController::class, 'login'])->name('login');
 Route::get('social/{provider}', [UserController::class, 'socialAuth'])->name('social.auth');
+
 Route::get('login/{provider}', [UserController::class, 'redirectToProvider'])->name('login.provider.redirect');
 Route::get('login/{provider}/callback', [UserController::class, 'handleProviderCallback'])->name('login.provider.callback');
+
 Route::get('verify', [UserController::class, 'verify'])->middleware(['throttle:6,1', 'signed'])->name('verification.verify');
 Route::get('verify/resend', [UserController::class, 'resendVerification'])->middleware('auth:sanctum', 'throttle:6,1')->name('verification.resend');
 

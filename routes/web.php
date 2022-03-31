@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('login/{provider}', [UserController::class,'redirect']);
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('login/{provider}/callback',[UserController::class, 'socialAuth']);
